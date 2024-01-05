@@ -1,17 +1,22 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 struct Task {
     std::string description;
     bool completed;
 };
 
+const std::string SESSION_FILE = ".todolist_session.txt";
+
 void displayMenu() {
     std::cout << "\n===== To-Do List Menu =====\n";
     std::cout << "1. Add Task\n";
     std::cout << "2. View Tasks\n";
     std::cout << "3. Mark Task as Completed\n";
-    std::cout << "4. Exit\n";
+    std::cout << "4. Remove Task\n";
+    std::cout << "5. New Session\n";
+    std::cout << "6. Exit\n";
     std::cout << "===========================\n";
 }
 
@@ -58,13 +63,74 @@ void markTaskCompleted(std::vector<Task>& tasks) {
     }
 }
 
+void removeTask(std::vector<Task>& tasks) {
+    viewTasks(tasks);
+
+    if (!tasks.empty()) {
+        size_t index;
+        std::cout << "Enter the number of the task to remove: ";
+        std::cin >> index;
+
+        if (index > 0 && index <= tasks.size()) {
+            tasks.erase(tasks.begin() + index - 1);
+            std::cout << "Task removed successfully!\n";
+        } else {
+            std::cout << "Invalid task number!\n";
+        }
+    } else {
+        std::cout << "No tasks available.\n";
+    }
+}
+
+void saveTasks(const std::vector<Task>& tasks) {
+    std::ofstream sessionFile(SESSION_FILE);
+
+    if (sessionFile.is_open()) {
+        for (const auto& task : tasks) {
+            sessionFile << task.description << "," << task.completed << "\n";
+        }
+        std::cout << "Tasks saved to " << SESSION_FILE << std::endl;
+        sessionFile.close();
+    } else {
+        std::cerr << "Error opening session file for writing!\n";
+    }
+}
+
+void loadTasks(std::vector<Task>& tasks) {
+    std::ifstream sessionFile(SESSION_FILE);
+
+    if (sessionFile.is_open()) {
+        tasks.clear();
+
+        std::string line;
+        while (std::getline(sessionFile, line)) {
+            size_t commaPos = line.find(',');
+            if (commaPos != std::string::npos) {
+                Task loadedTask;
+                loadedTask.description = line.substr(0, commaPos);
+                loadedTask.completed = std::stoi(line.substr(commaPos + 1));
+                tasks.push_back(loadedTask);
+            }
+        }
+
+        std::cout << "Tasks loaded from " << SESSION_FILE << std::endl;
+        sessionFile.close();
+    } else {
+        std::cerr << "Creating a new session file.\n";
+        std::ofstream newSessionFile(SESSION_FILE);
+        newSessionFile.close();
+    }
+}
+
 int main() {
     std::vector<Task> tasks;
+
+    loadTasks(tasks);
 
     int choice;
     do {
         displayMenu();
-        std::cout << "Enter your choice (1-4): ";
+        std::cout << "Enter your choice (1-6): ";
         std::cin >> choice;
 
         switch (choice) {
@@ -76,15 +142,26 @@ int main() {
                 break;
             case 3:
                 markTaskCompleted(tasks);
+                saveTasks(tasks); // Autosave after marking a task as completed
                 break;
             case 4:
+                removeTask(tasks);
+                saveTasks(tasks); // Autosave after removing a task
+                break;
+            case 5:
+                saveTasks(tasks); // Autosave before starting a new session
+                std::cout << "Starting a new session...\n";
+                tasks.clear();
+                break;
+            case 6:
                 std::cout << "Exiting the program. Goodbye!\n";
+                saveTasks(tasks); // Autosave before exiting
                 break;
             default:
-                std::cout << "Invalid choice. Please enter a number between 1 and 4.\n";
+                std::cout << "Invalid choice. Please enter a number between 1 and 6.\n";
         }
 
-    } while (choice != 4);
+    } while (choice != 6);
 
     return 0;
 }
