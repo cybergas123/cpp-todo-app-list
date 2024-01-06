@@ -14,9 +14,10 @@ void displayMenu() {
     std::cout << "1. Add Task\n";
     std::cout << "2. View Tasks\n";
     std::cout << "3. Mark Task as Completed\n";
-    std::cout << "4. Remove Task\n";
-    std::cout << "5. New Session\n";
-    std::cout << "6. Exit\n";
+    std::cout << "4. Edit Task\n";
+    std::cout << "5. Remove Task\n";
+    std::cout << "6. New Session\n";
+    std::cout << "7. Exit\n";
     std::cout << "===========================\n";
 }
 
@@ -55,6 +56,36 @@ void markTaskCompleted(std::vector<Task>& tasks) {
         if (index > 0 && index <= tasks.size()) {
             tasks[index - 1].completed = true;
             std::cout << "Task marked as completed!\n";
+        } else {
+            std::cout << "Invalid task number!\n";
+        }
+    } else {
+        std::cout << "No tasks available.\n";
+    }
+}
+
+void editTask(std::vector<Task>& tasks) {
+    viewTasks(tasks);
+
+    if (!tasks.empty()) {
+        size_t index;
+        std::cout << "Enter the number of the task to edit: ";
+        std::cin >> index;
+
+        if (index > 0 && index <= tasks.size()) {
+            Task& taskToEdit = tasks[index - 1];
+            std::cout << "Editing Task " << index << ":\n";
+            
+            std::cout << "Enter new task description: ";
+            std::cin.ignore(); // Clear the input buffer
+            std::getline(std::cin, taskToEdit.description);
+
+            char completionChoice;
+            std::cout << "Mark as completed? (y/n): ";
+            std::cin >> completionChoice;
+            taskToEdit.completed = (completionChoice == 'y' || completionChoice == 'Y');
+
+            std::cout << "Task edited successfully!\n";
         } else {
             std::cout << "Invalid task number!\n";
         }
@@ -108,7 +139,7 @@ void loadTasks(std::vector<Task>& tasks) {
             if (commaPos != std::string::npos) {
                 Task loadedTask;
                 loadedTask.description = line.substr(0, commaPos);
-                loadedTask.completed = std::stoi(line.substr(commaPos + 1));
+                loadedTask.completed = (line.substr(commaPos + 1) == "1");
                 tasks.push_back(loadedTask);
             }
         }
@@ -130,7 +161,7 @@ int main() {
     int choice;
     do {
         displayMenu();
-        std::cout << "Enter your choice (1-6): ";
+        std::cout << "Enter your choice (1-7): ";
         std::cin >> choice;
 
         switch (choice) {
@@ -145,23 +176,27 @@ int main() {
                 saveTasks(tasks); // Autosave after marking a task as completed
                 break;
             case 4:
+                editTask(tasks);
+                saveTasks(tasks); // Autosave after editing a task
+                break;
+            case 5:
                 removeTask(tasks);
                 saveTasks(tasks); // Autosave after removing a task
                 break;
-            case 5:
+            case 6:
                 saveTasks(tasks); // Autosave before starting a new session
                 std::cout << "Starting a new session...\n";
                 tasks.clear();
                 break;
-            case 6:
+            case 7:
                 std::cout << "Exiting the program. Goodbye!\n";
                 saveTasks(tasks); // Autosave before exiting
                 break;
             default:
-                std::cout << "Invalid choice. Please enter a number between 1 and 6.\n";
+                std::cout << "Invalid choice. Please enter a number between 1 and 7.\n";
         }
 
-    } while (choice != 6);
+    } while (choice != 7);
 
     return 0;
 }
