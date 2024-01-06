@@ -7,3 +7,7 @@
 
 - added sessions
 - posibility to remove tasks
+
+## v3
+
+- editing tasks now possible
