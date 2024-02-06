@@ -12,7 +12,7 @@ const std::string SESSION_FILE = ".todolist_session.txt";
 void displayMenu() {
     std::cout << "\n===== To-Do List Menu =====\n";
     std::cout << "1. Add Task\n";
-    std::cout << "2. View Tasks\n";
+    std::cout << "2. View Tasks\n"; 
     std::cout << "3. Mark Task as Completed\n";
     std::cout << "4. Edit Task\n";
     std::cout << "5. Remove Task\n";
