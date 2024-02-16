@@ -4,7 +4,7 @@
 
 struct Task {
     std::string description;
-    bool completed; 
+    bool completed;
 };
 
 const std::string SESSION_FILE = ".todolist_session.txt"; 
