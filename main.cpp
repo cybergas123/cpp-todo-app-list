@@ -3,7 +3,7 @@
 #include <fstream>
 
 struct Task {
-    std::string description; 
+    std::string description;
     bool completed;
 };
 
